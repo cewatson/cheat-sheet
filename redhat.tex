@@ -1,0 +1,661 @@
+\documentclass[10pt,landscape]{article}
+\usepackage{multicol}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape]{geometry}
+\usepackage[pdftex]{graphicx}
+% To make this come out properly in landscape mode, do one of the following
+% 1.
+%  pdflatex latexsheet.tex
+%
+% 2.
+%  latex latexsheet.tex
+%  dvips -P pdf  -t landscape latexsheet.dvi
+%  ps2pdf latexsheet.ps
+
+
+% If you're reading this, be prepared for confusion.  Making this was
+% a learning experience for me, and it shows.  Much of the placement
+% was hacked in; if you make it better, let me know...
+
+
+% 2008-04
+% Changed page margin code to use the geometry package. Also added code for
+% conditional page margins, depending on paper size. Thanks to Uwe Ziegenhagen
+% for the suggestions.
+
+% 2006-08
+% Made changes based on suggestions from Gene Cooperman. <gene at ccs.neu.edu>
+
+
+% To Do:
+% \listoffigures \listoftables
+% \setcounter{secnumdepth}{0}
+
+
+% This sets page margins to .5 inch if using letter paper, and to 1cm
+% if using A4 paper. (This probably isn't strictly necessary.)
+% If using another size paper, use default 1cm margins.
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+	{ \geometry{top=.5in,left=.5in,right=.5in,bottom=.5in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+
+% Turn off header and footer
+\pagestyle{empty}
+ 
+
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+
+% Define BibTeX command
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+
+% -----------------------------------------------------------------------
+%\fbox{ /etc/sysconfig/network-scripts/ifcfg-eth0 }
+%\begin{tabular}{@{}ll@{}}
+%\verb!DEVICE=!  & "eth0" \\
+%\end{tabular}
+%\fbox{ /etc/resolv.conf}
+
+\begin{document}
+
+\raggedright
+\footnotesize
+\begin{multicols}{3}
+
+
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\begin{center}
+     \Large{\textbf{RedHat Cheat Sheet}} \\
+\end{center}
+
+\section{Network Device Config}
+\begin{itemize}
+\item \textbf{/etc/sysconfig/network-scripts/ifcfg-eth0}
+\item If BOOTPROTO="dhcp", then DNS,GATEWAY,IPADDR,etc will not be set.
+\begin{verbatim}
+DEVICE="eth0" 
+BOOTPROTO="static" or "dhcp" 
+DNS1="*.*.*.*" 
+GATEWAY="*.*.*.*" 
+NETMASK="*.*.*.*"
+IPADDR="*.*.*.*" 
+HWADDR="*:*:*:*:*:*"
+UUID="*"
+ONBOOT="yes" 
+TYPE="Ethernet" 
+NM_CONTROLLED="no"
+\end{verbatim}
+
+
+\item A virtual interface may be added with the following command:
+\begin{verbatim}
+ip add *.*.*.*/24 dev eth0 label eth0:0
+\end{verbatim}
+
+\item \textbf{/etc/sysconfig/network-scripts/ifcfg-eht0:0}
+\begin{verbatim}
+DEVICE=eth0:0
+IPADDR=*.*.*.*
+PREFIX=24
+ONBOOT=yes
+ONPARENT=yes
+NM_CONTROLLED=no
+\end{verbatim}
+\item \textbf{/etc/sysconfig/network}
+\begin{verbatim}
+NETWORKING=yes 
+HOSTNAME=hostname.domainname.com 
+GATEWAY=192.168.1.1
+\end{verbatim}
+\end{itemize}
+\subsection{Network Interface Utils}
+\begin{tabular}{@{}ll@{}}
+\texttt{ifconfig -a} & Show summary for all interfaces. \\
+\texttt{ip addr show} & Show summary for all interfaces. \\
+\texttt{mii-tool -v devname} & Show device mode. \\
+\texttt{ethtool devname} & Show device negotiated tx speed. \\
+\texttt{ethtool -S devname} & Show transmission statistics. \\
+\texttt{netstat -i} & Show transmission statistics. \\
+\texttt{system-config-network} & Cli tool for managing dev settings. \\
+\texttt{service network restart} & Restart network services.  \\
+\end{tabular}
+
+\subsection{Nameservice Resolution}
+\begin{itemize}
+\item  \textbf{/etc/resolv.conf}
+\begin{verbatim}
+nameserver 8.8.8.8 
+domain mydomain.com
+search mydomain.com
+\end{verbatim}
+
+\item \textbf{/etc/nsswitch.conf}
+\begin{verbatim}
+hosts & files dns 
+\end{verbatim}
+
+\item \textbf{/etc/hosts}
+\begin{verbatim}
+127.0.0.1  localhost.localdomain
+::1  localhost.localdomain 
+\end{verbatim}
+\end{itemize}
+
+\subsection{Connectivity Utils}
+\begin{tabular}{@{}ll@{}}
+\texttt{ping -c 5 -R host} & TX 5 packets and record route \\
+\texttt{traceroute host} &  network path and record hops. \\
+\texttt{mrt host} & trouceroute and hop statistics. \\
+\texttt{netstat -r} & Show route tables. \\
+\texttt{ip route} & Show route tables. \\
+\texttt{getent hosts hostname} & Show nameservice record.  \\
+\texttt{host hostname} & Show nameservice record.  \\
+\texttt{nslookup hostname} & Show dns nameservice record.  \\
+\texttt{dig hostname +noall +answer} & Show dns nameservice record.  \\
+\end{tabular}
+
+\subsection{Firewall}
+\fbox{ /etc/sysconfig/iptables
+/etc/sysconfig/iptables-config}
+\begin{tabular}{@{}ll@{}}
+\texttt{system-config-firewall} & config tool \\
+\texttt{service iptables save} & save ruleset \\
+\texttt{service iptables panic} & drop everything \\
+\texttt{iptables -vnL CHAIN } & list ruleset for CHAIN \\
+\texttt{iptables -Lv --line-numbers} & list ruleset for CHAIN \\
+\texttt{iptables -A INPUT } & append to INPUT CHAIN \\
+\texttt{iptables -I INPUT } & insert rule at line 1 \\
+\texttt{iptables -R CHAIN number} & replace rule number \\
+\texttt{iptables -D CHAIN number} & delete rule number \\
+\end{tabular}
+\begin{verbatim}
+iptables -P DROP #change default policy to DROP
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT REJECT --help
+iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -j SNAT --to-source 172.12.17.1
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 192.168.0.5
+\end{verbatim}
+\subsection{Firewall Example Rulesets}
+\begin{tabular}{@{}ll@{}}
+\texttt{-I INPUT -p tcp -s *.*.*.* --dport 22 -j ACCEPT} & allow 22\\
+\texttt{-I INPUT -p tcp -s *.*.*.* --dport 22 -j DROP} & allow 22\\
+\end{tabular}
+
+\subsection{TCP Wrappers}
+\begin{itemize}
+\item \textbf{/etc/hosts.allow}
+\begin{verbatim}
+    ALL:127.0.0.1
+\end{verbatim}
+\item \textbf{/etc/hosts.deny}
+\begin{verbatim}
+    ALL:ALL EXCEPT .example.com
+\end{verbatim}
+\end{itemize}
+\section{Storage}
+\fbox{ /etc/fstab}
+
+This file contains 6 columns.  The have the following header descriptions:
+
+\{dev\} \{mntpnt\} \{fstype\} \{mntopts\} \{dumpopt\} \{fsckopt\}
+
+\begin{tabular}{@{}ll@{}}
+\texttt{fdisk -cul} & list partitions \\
+\texttt{fdisk -cu /dev/sda2} & menu driven partition editor \\
+\texttt{mkfs.ext4 /dev/sda2} & make file system ext4 on dev \\
+\texttt{partprobe /dev/sda2} & make kernel aware of partition changes \\
+\texttt{blkid} & returns the UUID information for disks \\
+\texttt{cat /proc/mount} & returns what is mounted \\
+\texttt{mount -l} & returns what is mounted \\
+\texttt{mount -o remount,rw /} & remounts / rw\\
+\texttt{mount -o loop /path/to.iso} & mounts mounts an iso file\\
+
+\end{tabular}
+
+\subsection{Encrypted File Systems}
+The following are arguments to the cryptsetup command.
+must execute the following:
+\begin{enumerate}
+\item Initialize Luks Partition
+\begin{verbatim}
+cryptsetup luksFormat /dev/vdaN
+cryptsetup luksOpen /dev/vdaN NAME
+mkfs.ext4 /dev/mapper/NAME
+\end{verbatim}
+\item Mount persistantly
+\begin{verbatim}
+NAME /dev/vdaN /path/to/passwd > /etc/crypttab
+/dev/mapper/NAME /mount ext4 defaults 1 1 >/etc/fstab
+cryptsetup luksAddKey /dev/vdaN /path/to/passwd
+\end{verbatim}
+\end{enumerate}
+%touch /fpasskey \&\& chmod 600 /fpasskey  
+%echo mypasskey>/fpasskey 
+
+%\begin{tabular}{@{}ll@{}}
+%\texttt{luksFormat /dev/sda2} & initialize Luks partition \\
+%\texttt{luksOpen /dev/sda2 freeagent} & set up freeagent partition \\
+%\texttt{luksAddKey /dev/sda2 /fpasskey} & tell cryptsetup about key  \\
+%\end{tabular}
+
+%add the following to /etc/fstab
+%/dev/mapper/freeagent /freeagent ext4 \_netdv 1 1
+%add the following to /etc/crypttab
+%freeagent /dev/sda2 /freeagent
+
+
+%fdisk /dev/sda
+\subsection{Volumes}
+\begin{enumerate}
+\item create/move/remove a physical volume 
+\begin{verbatim}
+pvcreate /dev/sda#
+\end{verbatim}
+\item create/add/remove device in volume group
+\begin{verbatim}
+vgcreate volume_group_name /dev/sda#
+vgextend volume_group_name /dev/sda#
+\end{verbatim}
+\item create/add/remove logical volume
+\begin{verbatim}
+lvcreate -n lvname -L #G vgname
+lvextend -L12G /dev/volume_group_name/lvname
+lvextend -L+1G /dev/volume_group_name/lvname
+lvextend -l +100\%FREE /dev/volume_group_name/lvname
+\end{verbatim}
+\item make a filesystem on the new device
+\begin{verbatim}
+mkfs -t ext4 /dev/mapper/vgname-lvname
+mkfs -t ext4 /dev/vgname/lvname
+fsck -f /dev/mapper/vgname-lvname
+resize2fs -p /dev/vgname/lvname
+\end{verbatim}
+\item \textbf{/etc/fstab}
+\begin{verbatim}
+/dev/mapper/vgname-lvname /mountpoint ext4 defaults 1 2
+\end{verbatim}
+\end{enumerate}
+\begin{tabular}{@{}ll@{}}
+\texttt{pvdisplay}                                     & show physical volume info\\
+\texttt{pvscan}                                        & show physical volume info (minimal)\\
+\texttt{vgdisplay}                                     & show volume group info\\
+\texttt{vgscan}                                        & show volume group info (minimal)\\
+\texttt{lvdisplay}                                     & show physical volume info\\
+\texttt{lvscan}                                        & show logical volume info (minimal)\\
+\texttt{lvremove /dev/sda\#}                           & remove logical volume label\\
+\texttt{vgreduce vgroup\_name /dev/sda\# dest}         & remove disk from vgroup\\
+\texttt{vgremove vgroup\_name}                         & remove the volume group  \\
+\texttt{lvreduce -L \#G /dev/mapper/vgname-lvname}     & reduce logical volume\\
+\texttt{resize2fs -p /dev/mapper/vgname-lvname \#G}    & reduce file sys size\\
+\texttt{mount -a}                                      & mount it all\\
+\texttt{umount filesystem}                             & unmount it \\
+\end{tabular}
+
+\section{Package Management}
+
+\subsection{Using Yum}
+The following are arguments to the yum command:
+
+\begin{tabular}{@{}ll@{}}
+\texttt{-nogpgcheck localinstall bla.rpm} & install bla.rpm \\
+\texttt{-y bla} & install  \\
+\texttt{remove bla} & un-install  \\
+\texttt{update bla} & update  \\
+\texttt{search bla} & search packages associated with bla \\
+\texttt{list installed} & identify install packages \\
+\texttt{list available *ftp*} & identify available packages \\
+\texttt{provides filename} & determine file association \\
+\texttt{grouplist } & identify install groups \\
+\texttt{groupinstall 'groupname' } & install group software\\
+\texttt{groupremove 'groupname' } & un-install group software\\
+\texttt{repolist all } & list all rpm repos\\
+\texttt{--enablerepo=reponame install bla} & install from disabled repo \\
+
+\end{tabular}
+
+\subsection{Using rpm}
+The following are arguments to the rpm command:
+
+\begin{tabular}{@{}ll@{}}
+\texttt{-qlp bla.rpm} & list files installed by bla.rpm  \\
+\texttt{-q --requires bla.rpm} & list dependancies \\
+\texttt{-q --whatprovides file} & file package association \\
+\texttt{-qd} & list documentation \\
+\texttt{-qc} & list config files\\
+\texttt{-qa} & list installed pkgs \\
+\texttt{-i bla.rpm} & install bla.rpm  \\
+\texttt{-q -i bla.rpm} & get into on bla.rpm  \\
+\texttt{-U bla.rpm} & update bla.rpm  \\
+\texttt{-e bla} & un-install  \\
+\end{tabular}
+\subsection{Building RPMs}
+yum install rpm-build rpmdevtools
+\begin{tabular}{@{}ll@{}}
+\texttt{rpmdev-setuptree} & creates rpmbuild directories \\
+\texttt{rpmdev-newspec} & creates a new spec file \\
+\texttt{rpmbuild -ba specfile} & build rpm \\
+\texttt{rpm -i bla.rpm} & install bla.rpm \\
+\texttt{rpm -e bla.rpm} & un-insdocumentation tall bla.rpm \\
+\end{tabular}
+procedure:
+\begin{enumerate}
+\item yum install rpm-build rpmdevtools
+\item rpmdev-setuptree
+\item mkdir $\sim$/software-1.0
+\item touch $\sim$/software-1.0/configure;chmod u+x configure
+\item touch $\sim$/software-1.0/sfile
+\item tar -czf software1.0-1.el.x86\_64.tar.gz software-1.0
+\item cp software-1.0.tar.gz $\sim$/build/SOURCES
+\item vi $\sim$/rpmbuild/SPECS/software-1.0.spec
+\end{enumerate}
+SPECFILE:
+\begin{verbatim}
+Source0:software-1.0-1.el.x86_64.tar.gz
+%build
+#make %{?_smp_mflags}
+%install
+#make install DESTDIR=%{buildroot}
+install -d -m 0755 $RPM_BUILD_ROOT/d_dir
+install -m 0644 $RPM_BUILD_ROOT/d_dir/sfile
+%files
+/d_dir/sfile
+\end{verbatim}
+rpmbuild directory structure
+sections of specfile
+yum repository
+\subsection{YUM Repo}
+\begin{enumerate}
+\item edit /etc/yum.repos.d/your.repo
+\begin{verbatim}
+ [repositoryid]
+ name=somename
+ baseurl=http://path.to.repo
+ gpgcheck=0
+\end{verbatim}
+\end{enumerate}
+\section{KVM}
+\begin{tabular}{@{}ll@{}}
+\texttt{virsh list --all} & identify guest hosts \\
+\texttt{virsh start host} & "power on" host\\
+\texttt{virsh destroy host} & "power off" host\\
+\texttt{virsh shutdwon host} & shut it down nicely\\
+\texttt{virsh autostart host} & "power on" at boot\\
+\texttt{virt-install --prompt} & "menu" driven install\\
+\texttt{virt-viewer host} & open console \\
+\texttt{virt-manager} & starts the gui hypervisor\\
+\end{tabular}
+
+\section{SELINUX}
+\begin{tabular}{@{}ll@{}}
+\texttt{sestatus} & identify security status \\
+\texttt{chcon} & change the context for a file \\
+\texttt{getenforce} & display selinux mode\\
+\texttt{setenforce permissive} & change enforcement of selinux\\
+\texttt{setenforce enforcing} & change enforcement of selinux \\
+\texttt{ls -Z file} & show file's context \\
+\texttt{getsebool -a} & display selinux boolean \\
+\texttt{seaudit} & open gui to view selinux messages\\
+\texttt{restorecon -Rv} & restore default file context\\
+\texttt{system-config-selinux} & launch the SELinux admin tool\\
+\texttt{ps -eZ} & view process context information\\
+
+\end{tabular}
+yum install policycoreutils-gui setools-gui setroubleshoot-server
+/etc/sysconfig/selinux
+\section{Kickstart}
+\begin{verbatim}
+ksvalidator
+\end{verbatim}
+\begin{tabular}{@{}ll@{}}
+\texttt{system-config-kickstart} & launch kickstart gui\\
+\end{tabular}
+\section{Services}
+\begin{tabular}{@{}ll@{}}
+\texttt{service foo restart} & restarts the foo service \\
+\texttt{service -} & restarts the foo service \\
+\texttt{chkconfig foo on} & start foo on reboot\\
+\end{tabular}
+\subsection{httpd}
+\begin{enumerate}
+\item yum groupinstall "Web Server"
+\item yum install elinks
+\end{enumerate}
+/etc/pki/tls
+/etc/httpd/conf.d/ssl.conf
+/etc/httpd/conf/httpd.conf
+\begin{verbatim}
+NameVirtualHost 192.168.0.196:80
+<VirturalHost 192.168.0.196:80>
+ ServerAdmin webmaster@example.com
+ DocumentRoot /var/www/docs/123xxx
+ ServerName 123xxx.com
+</VirtualHost>
+<VirturalHost 192.168.0.196:80>
+ ServerAdmin webmaster@example.com
+ DocumentRoot /var/www/docs/xxx123
+ Servername xxx123.com
+</VirtualHost>
+\end{verbatim}
+\begin{enumerate}
+\item put cgi script in /var/www/cgi-bin
+\item getsebool -a |grep cgi
+\item setsebool httpd\_enable\_cgi on
+\item cd /var/www/docroot/
+\item ln -s ../../cgi-bin
+%/etc/httpd/conf/httpd.conf
+\item     remove scriptalias and directory stanza for CGI
+\item service httpd restart
+\end{enumerate}
+\subsection{DNS}
+\begin{enumerate}
+\item yum install named
+\item edit /etc/named.conf
+\begin{verbatim}
+    listen-on 53 { 127.0.0.1;192.168.0.196;};
+    allow-query {localhost;192.168.0.0/24;};
+    forwarders {nameserverip;}
+\end{verbatim}
+\item service named start
+\item chkconfig named on
+\item open firewall port
+\end{enumerate}
+\subsection{NFS}
+\begin{enumerate}
+\item yum -y install nfs*
+\item edit /etc/exports
+\begin{verbatim}
+    /shared *.exampel.com(rw)
+\end{verbatim}
+\item exportfs -va
+\item .....open firewall
+\end{enumerate}
+\subsection{AutoFs}
+\begin{enumerate}
+\item yum -y install autofs
+\item edit /etc/auto.master
+\begin{verbatim}
+    /misc/shared    /etc/auto.misc
+\end{verbatim}
+\item edit /etc/auto.misc
+\begin{verbatim}
+    shared -fstype=nfs,rw   server:/shared
+\end{verbatim}
+\item service autofs restart
+\item cd /misc/shared
+\end{enumerate}
+\subsection{smtp}
+\begin{enumerate}
+\item yum install postfix
+/var/log/maillog
+\item edit /etc/postfix/main.cf:
+\begin{verbatim}
+myhostname=servername.example.com
+mydomain=example.con
+myorign = $mydomain
+inet_interfaces=all
+mydestination=$myhostname,localhost.$mydomain,localhost,$mydomain
+mynetworks = 127.0.0.0/8 10.0.0.0/24
+relay_domains =$mydestination
+#relayhost = $mydomain ; only if not internet
+\end{verbatim}
+\item service postfix start
+\item chkconfig postfix on
+\item open firewall
+\end{enumerate}
+\subsection{vsftpd}
+\begin{enumerate}
+\item yum install vsftpd
+\item edit /etc/vsftpd/vsftpd.conf
+\begin{verbatim}
+    anonymous_enable=YES
+\end{verbatim}
+\item service vsftpd start
+\item chkconfig vsftpd on
+\item open firewall
+\end{enumerate}
+\subsection{Samba}
+\begin{enumerate}
+\item yum install samaba
+\item edit /etc/samba/samba.conf
+\begin{verbatim}
+    workgroup=SMBGROUP
+    hosts allow=127. 192.168.0.
+
+    [shared]
+    comment=SambaShare
+    path=/shared
+    browseable=yes
+    public=yes
+    writable=no
+    printable=no
+    valid users=%U or +GROUP
+\end{verbatim}
+\item create user
+\begin{verbatim}
+smbpasswd -a user
+\end{verbatim}
+\item restart the smb service
+\item mount the cifs share
+\begin{verbatim}
+mount cifs //server/shared/test -o username=user
+To make persistant:
+cat /etc/mtab|grep relevant string >> /etc/fstab
+\end{verbatim}
+\item open firewall
+\end{enumerate}
+\section{Manage Users}
+\begin{tabular}{@{}ll@{}}
+\texttt{useradd} & adds a user\\
+\texttt{usermod} & modify user properties\\
+\texttt{chage} & password aging\\
+\end{tabular}
+\section{Shell}
+
+\begin{tabular}{@{}ll@{}}
+\texttt{fdisk -cul} & list partitions \\
+\end{tabular}
+\subsection{Structures}
+
+\begin{verbatim}
+------------------------
+if [ "$val" = "$val"]; then
+    echo stuff
+else
+    more stuff
+fi
+------------------------
+c=0
+while [ $c -lt 10 ]; do
+    echo stuff
+    let c=c+1
+done
+------------------------
+for val in \{5..10\}
+do
+done
+------------------------
+\end{verbatim}
+%cp /file.txt{,-old}
+%mkdir -p path/{dir1,dir2}
+%ps -ef|tail -1|awk '{print $2}'
+%ehco foo bar
+%\^ehco\^echo
+%rename 's/oldname/newname/'*.ext
+%!?foo?:p search history for foo and print
+%!?foo executes last command containing foo
+%pstree
+%pidof service
+%od -c
+%stat
+%strings -a
+%CDPATH='.:~:/usr/local/apache/htdocs:/disk1/backups'
+%sed -i 's/old-word/newword/g' *.txt
+%sed -i 1d foo.txt
+%sed -i -e \'/\^\$/d\' foo.txt
+%sed -i -e \'/\#.*\$/d\' foo.txt
+%--
+\section{Files}
+\begin{tabular}{@{}ll@{}}
+\texttt{chmod 1757} & sets sticky bit\\
+\texttt{chmod 2750} & sets sgid \\
+\texttt{chmod 4750} & sets suid\\
+\texttt{setfacl -m u:lisa:r file} & sets acl\\
+\texttt{setfacl -m u:lisa:- file} & sets acl no nothing\\
+\texttt{setfacl -m m::rx file} & sets acl mask\\
+\texttt{setfacl -x g:groupname file} & remove group access\\
+\texttt{setfacl -b file} & remove acls \\
+\end{tabular}
+%$ setfacl -m u:lisa:r file
+%
+%$ getfacl file1 > acls.txt
+%$ setfacl -f acls.txt file2
+%
+%$ setfacl -m m::rx file, effective mask remove write
+%$ setfacl -x g:staff file, remove group access
+%$ setfacl -m d:u::rwx,d:g::rwx,d:m:rwx,d:o:r-x groupshare
+%setfacl -b file, clear acls for file
+\section{Kernel}
+\begin{verbatim}
+sysctl -a list tuned variables
+sysctl -w modify a variable
+sysctl -p reread sysctl.conf
+\end{verbatim}
+
+/etc/sysctl.conf
+    net.ip4.ip\_forward=1 , enable packet forwarding
+\end{multicols}
+\end{document}
