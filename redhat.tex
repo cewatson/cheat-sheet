@@ -676,5 +676,16 @@ ssh-keygen -t rsa -C emailaddress
 ssh -T git@github.com
 
 \end{verbatim}
+\section{Github}
+\begin{verbatim}
+git remote add upstream git@github.com:username/project.git
+git fetch upstream
+git clone git@github.com:username/project.git
+git config --global user.name username
+git config --global user.email emailaddress
+ssh-keygen -t rsa -C emailaddress
+ssh -T git@github.com
+
+\end{verbatim}
 \end{multicols}
 \end{document}
